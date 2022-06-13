@@ -18,7 +18,10 @@ import java.util.*
  * Created by thornbird on 2022/05/07.
  */
 class Api2Camera(mCM: CameraManager){
-    private val TAG = "Api2Camera"
+    private val TAG = "TBCameraBase"
+    
+    private var isPreview = false
+    private var isOpen = false
 
     private var mCameraManager: CameraManager
     
@@ -31,9 +34,10 @@ class Api2Camera(mCM: CameraManager){
     private val mCameraStateCallback: CameraDevice.StateCallback = object : CameraDevice.StateCallback() {
         override fun onOpened(camera: CameraDevice) {
             mCameraDevice = camera
-            Log.d(TAG, "STARTUP_REQUIREMENT Done opening camera.")
+	    isOpen = true
 
-	    Preview()
+            Log.d(TAG, "STARTUP  Done opening camera.")
+	    tryToPreview()
         }
 
         override fun onClosed(camera: CameraDevice) {
@@ -48,30 +52,34 @@ class Api2Camera(mCM: CameraManager){
             Log.e(TAG, "CameraDevice onError error val is $error. ")
         }
     }
+
     private val mSessionStateCallback: CameraCaptureSession.StateCallback = object : CameraCaptureSession.StateCallback() {
-        override fun onConfigured(session: CameraCaptureSession) {
-            mCurrentCaptureSession = session
+	override fun onConfigured(session: CameraCaptureSession){
             Log.d(TAG, "capture session onConfigured().")
-            PreviewCaptureRequest()
-        }
+	}
+
+	override fun onConfigureFailed(session: CameraCaptureSession){
+            Log.d(TAG, "ERROR: capture session onConfigureFailed().")
+	}
 
         override fun onReady(session: CameraCaptureSession) {
-            Log.d(TAG, "capture session onReady().")
-        }
-
-        override fun onConfigureFailed(session: CameraCaptureSession) {
-            Log.e(TAG, "onConfigureFailed")
+	    super.onReady(session)
+        
+	    Log.d(TAG, "capture session onReady().")
+            mCurrentCaptureSession = session
+            
+	    PreviewCaptureRequest()
         }
     }
 
     private val mCaptureCallback: CaptureCallback = object : CaptureCallback() {
         override fun onCaptureCompleted(session: CameraCaptureSession, request: CaptureRequest, result: TotalCaptureResult) {
-                Log.d(TAG, "App control to first frame: ")
+                Log.d(TAG, "App control to frame: ")
         }
     }
 
     fun openCamera() {
-        Log.d(TAG, "STARTUP_REQUIREMENT opening camera ")
+        Log.d(TAG, "STARTUP opening camera ")
 	
 	mCameraManager.openCamera("0", mCameraStateCallback, null)
     }
@@ -88,15 +96,22 @@ class Api2Camera(mCM: CameraManager){
         Log.d(TAG, "Start Prview ... ")
 
 	mPreviewSurface = mSurface
+	isPreview = true
+	tryToPreview()
     }
 
     fun stopPreview(){
 
     }
 
+    private fun tryToPreview(){
+	if(isPreview&&isOpen)
+		Preview()
+    }
+
     private fun Preview(){
         Log.d(TAG, "Prviewing ... ")
-	val outputSurfaces:MutableList<Surface?> = ArrayList(1)
+	val outputSurfaces:MutableList<Surface?> = ArrayList(4)
 
         outputSurfaces.add(mPreviewSurface);
         

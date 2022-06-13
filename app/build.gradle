@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId 'com.tb.TBCameraBase'
-        minSdkVersion 30
+        minSdkVersion 29
         targetSdkVersion 30
         versionCode 1
         versionName '1.0'
@@ -20,6 +20,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+      lintOptions {
+          abortOnError false
+      }
 
 }
 

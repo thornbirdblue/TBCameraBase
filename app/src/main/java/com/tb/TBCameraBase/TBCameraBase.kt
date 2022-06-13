@@ -33,23 +33,23 @@ class TBCameraBase : AppCompatActivity(),SurfaceHolder.Callback {
 	}
 
 	override fun onStop() {
-		mApi2Cam.closeCamera()
 		Log.d(TAG,"onStop Finished!")
+		mApi2Cam.closeCamera()
 	}
 
 	override fun surfaceCreated(holder: SurfaceHolder){
-		mApi2Cam.startPreview(mSurface.getHolder().getSurface())
-		
 		Log.d(TAG,"surfaceCreated")
 	}
+
 	override fun surfaceDestroyed(holder: SurfaceHolder){
-		mApi2Cam.stopPreview()
-		
 		Log.d(TAG,"surfaceDestroyed")
+		mApi2Cam.stopPreview()
 	}
+
 	override fun surfaceChanged(holder: SurfaceHolder,format: Int,width: Int,height: Int){
-		
-		Log.d(TAG,"surfaceChanged!")
+		Log.d(TAG,"surfaceChanged: format="+format+"w="+width+"h="+height)
+
+		mApi2Cam.startPreview(mSurface.getHolder().getSurface())
 	}
 
 }
